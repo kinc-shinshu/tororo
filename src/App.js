@@ -99,7 +99,7 @@ class Line extends React.Component {
         .toList()
         .findIndex(item => item.key === block.key) + 1;
     return (
-      <div className="line" data-line-number={1}>
+      <div className="line" data-line-number={lineNumber}>
         <div className="line-text">
           <EditorBlock {...this.props} />
         </div>
