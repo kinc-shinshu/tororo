@@ -6,6 +6,8 @@ import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
+import { Editor, EditorBlock, EditorState } from 'draft-js';
+import './lines_number.css';
 
 import kincLogo from './images/kinc-logo.png';
 
@@ -43,15 +45,14 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            inputText: '',
+            editorState: EditorState.createEmpty(),
         };
-    }
+    };
 
-    // onChangeで自動表示入れてもいいんじゃない
-    inputOnChanger = (e) => {
-        this.setState(
-            { inputText : e.target.value }
-        );
+    handleChange = editorState => {
+        this.setState({
+            editorState
+        })
     };
 
 
@@ -64,20 +65,12 @@ class App extends React.Component {
                     <Grid item xs={12} sm={12} md={12} component={Paper} elevation={6} square>
                         <div className={classes.paper}>
                             <Avatar src={kincLogo} className={classes.avatar} />
+                        
                             <form className={classes.form} noValidate>
-                                <TextField
-                                    variant="outlined"
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    multiline={true}
-                                    rows={20}
-                                    rowsMax={30}
-                                    id="text_input"
-                                    value={this.state.inputText}
-                                    onChange={this.inputOnChanger}
-                                    label="入力しておくれ"
-                                    autoFocus
+                                <Editor
+                                    editorState={this.state.editorState}
+                                    onChange={this.handleChange}
+                                    blockRendererFn={blockRendererFn}
                                 />
                                 <Button
                                     type="submit"
@@ -96,5 +89,27 @@ class App extends React.Component {
         );
     }
 }
+
+class Line extends React.Component {
+  render() {
+    const { block, contentState } = this.props;
+    const lineNumber =
+      contentState
+        .getBlockMap()
+        .toList()
+        .findIndex(item => item.key === block.key) + 1;
+    return (
+      <div className="line" data-line-number={1}>
+        <div className="line-text">
+          <EditorBlock {...this.props} />
+        </div>
+      </div>
+    );
+  }   
+}
+
+const blockRendererFn = () => ({
+  component: Line,
+});
 
 export default withStyles(useStyles)(App);
